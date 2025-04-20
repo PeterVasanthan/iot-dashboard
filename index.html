@@ -3,50 +3,254 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Real-time disaster monitoring dashboard">
   <title>IoT Disaster Monitoring Dashboard</title>
   <style>
+    :root {
+      --primary-color: #0071e3;
+      --danger-color: #ff3b30;
+      --warning-color: #ff9500;
+      --success-color: #34c759;
+      --text-dark: #1d1d1f;
+      --text-light: #86868b;
+      --bg-color: #f5f5f7;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
       padding: 20px;
-      color: #333;
     }
-    h1 {
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
       text-align: center;
-      color: #2c3e50;
+      margin-bottom: 30px;
     }
-    .sensor {
-      background: #fff;
-      padding: 15px;
-      margin: 15px auto;
-      border-radius: 10px;
-      max-width: 500px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-dark);
     }
-    .alert {
-      color: red;
-      font-weight: bold;
+
+    .subtitle {
+      color: var(--text-light);
+      font-size: 1.1rem;
     }
-    .label {
-      font-weight: bold;
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .sensor-card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sensor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .sensor-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .sensor-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 113, 227, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+
+    .sensor-icon i {
+      color: var(--primary-color);
+      font-size: 20px;
+    }
+
+    .sensor-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .sensor-value {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin: 15px 0;
+    }
+
+    .sensor-unit {
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+
+    .alert-banner {
+      background: var(--danger-color);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 12px;
+      margin-top: 30px;
+      display: flex;
+      align-items: center;
+      animation: pulse 2s infinite;
+    }
+
+    .alert-banner.success {
+      background: var(--success-color);
+      animation: none;
+    }
+
+    .alert-banner.warning {
+      background: var(--warning-color);
+    }
+
+    .alert-icon {
+      margin-right: 15px;
+      font-size: 1.5rem;
+    }
+
+    .alert-message {
+      flex: 1;
+    }
+
+    .last-updated {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-top: 20px;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .sensor-value {
+        font-size: 2rem;
+      }
     }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <h1>Disaster Monitoring Dashboard</h1>
+  <div class="container">
+    <header>
+      <h1>Disaster Monitoring</h1>
+      <p class="subtitle">Real-time environmental sensor data</p>
+    </header>
 
-  <div class="sensor">
-    <div><span class="label">Temperature:</span> <span id="temperature">--</span></div>
-    <div><span class="label">Smoke:</span> <span id="smoke">--</span></div>
-    <div><span class="label">Vibration:</span> <span id="vibration">--</span></div>
-    <div><span class="label">Water Level:</span> <span id="waterLevel">--</span></div>
-    <div><span class="label">Rain:</span> <span id="rain">--</span></div>
-    <div id="alert" class="alert"></div>
+    <div class="dashboard">
+      <div class="sensor-card">
+        <div class="sensor-header">
+          <div class="sensor-icon">
+            <i class="fas fa-temperature-high"></i>
+          </div>
+          <div class="sensor-title">Temperature</div>
+        </div>
+        <div class="sensor-value" id="temperature">--</div>
+        <div class="sensor-unit">°C</div>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-header">
+          <div class="sensor-icon">
+            <i class="fas fa-smog"></i>
+          </div>
+          <div class="sensor-title">Smoke Level</div>
+        </div>
+        <div class="sensor-value" id="smoke">--</div>
+        <div class="sensor-unit">ppm</div>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-header">
+          <div class="sensor-icon">
+            <i class="fas fa-chart-line"></i> <!-- Changed to chart-line for vibration -->
+          </div>
+          <div class="sensor-title">Vibration</div>
+        </div>
+        <div class="sensor-value" id="vibration">--</div>
+        <div class="sensor-unit">mm/s²</div>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-header">
+          <div class="sensor-icon">
+            <i class="fas fa-water"></i>
+          </div>
+          <div class="sensor-title">Water Level</div>
+        </div>
+        <div class="sensor-value" id="waterLevel">--</div>
+        <div class="sensor-unit">cm</div>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-header">
+          <div class="sensor-icon">
+            <i class="fas fa-cloud-rain"></i>
+          </div>
+          <div class="sensor-title">Rain</div>
+        </div>
+        <div class="sensor-value" id="rain">--</div>
+        <div class="sensor-unit">mm/h</div>
+      </div>
+    </div>
+
+    <div id="alert" class="alert-banner success">
+      <div class="alert-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="alert-message">All sensors normal</div>
+    </div>
+
+    <div class="last-updated" id="lastUpdated">
+      Last updated: --
+    </div>
   </div>
 
   <script>
     const channelID = "2918732";
-    const apiKey = "4W8JWYPU324TRM3N"; // Your actual Read API Key
+    const apiKey = "4W8JWYPU324TRM3N";
 
     const fieldMapping = {
       temperature: 'field1',
@@ -60,40 +264,72 @@
       try {
         const response = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${apiKey}`);
         const data = await response.json();
+        
+        // Update last updated time
+        const now = new Date();
+        document.getElementById('lastUpdated').textContent = `Last updated: ${now.toLocaleTimeString()}`;
 
         const sensorReadings = {};
         for (const [key, field] of Object.entries(fieldMapping)) {
           const reading = parseFloat(data[field]);
           sensorReadings[key] = isNaN(reading) ? 0 : reading;
-          document.getElementById(key).innerText = sensorReadings[key];
+          document.getElementById(key).textContent = sensorReadings[key].toFixed(2);
         }
 
         showAlert(sensorReadings);
 
       } catch (error) {
-        document.getElementById("alert").innerText = "Error fetching data!";
+        document.getElementById("alert").className = "alert-banner";
+        document.getElementById("alert").innerHTML = `
+          <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="alert-message">Error fetching data! Trying again...</div>
+        `;
         console.error("Fetch error:", error);
       }
     }
 
     function showAlert(readings) {
       const { temperature, smoke, vibration, waterLevel, rain } = readings;
+      const alertElement = document.getElementById("alert");
       let alertMessage = "";
+      let alertType = "success";
+      let alertIcon = "check-circle";
 
       if (temperature > 500 && smoke > 300) {
-        alertMessage += "🔥 Forest Fire Alert! ";
+        alertMessage += "🔥 Forest Fire Detected! ";
+        alertType = "danger";
+        alertIcon = "fire";
       }
       if (vibration > 500) {
-        alertMessage += "🌍 Earthquake Alert! ";
+        alertMessage += "⚠️ High Vibration Detected! ";
+        alertType = "danger";
+        alertIcon = "exclamation-triangle";
       }
       if (waterLevel > 600 || rain > 400) {
-        alertMessage += "🌊 Flood Alert! ";
+        alertMessage += "🌊 Flood Risk Detected! ";
+        alertType = "warning";
+        alertIcon = "water";
       }
 
-      document.getElementById("alert").innerText = alertMessage || "✅ All sensors normal.";
+      if (alertMessage) {
+        alertElement.className = `alert-banner ${alertType}`;
+        alertElement.innerHTML = `
+          <div class="alert-icon"><i class="fas fa-${alertIcon}"></i></div>
+          <div class="alert-message">${alertMessage}</div>
+        `;
+      } else {
+        alertElement.className = "alert-banner success";
+        alertElement.innerHTML = `
+          <div class="alert-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="alert-message">All sensors normal</div>
+        `;
+      }
     }
 
+    // Initial fetch
     fetchData();
+    
+    // Refresh every 20 seconds
     setInterval(fetchData, 20000);
   </script>
 </body>
