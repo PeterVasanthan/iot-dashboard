@@ -1,79 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>IoT Disaster Alerts Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IoT Disaster Monitoring Dashboard</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      color: #333;
-      text-align: center;
-      padding: 30px;
-    }
-    .card {
-      background: #fff;
+      background: #f4f4f4;
       padding: 20px;
-      margin: 10px auto;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 500px;
+      color: #333;
     }
-    h2 {
-      color: #0a4d8c;
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .sensor {
+      background: #fff;
+      padding: 15px;
+      margin: 15px auto;
+      border-radius: 10px;
+      max-width: 500px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .alert {
-      font-weight: bold;
       color: red;
-      margin-top: 20px;
+      font-weight: bold;
+    }
+    .label {
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>🌍 Real-Time Disaster Monitoring</h2>
-  <div class="card">
-    <p>🌡️ Temperature: <span id="temp">--</span> °C</p>
-    <p>💨 Smoke: <span id="smoke">--</span></p>
-    <p>🌊 Water Level: <span id="water">--</span></p>
-    <p>🌧️ Rain: <span id="rain">--</span></p>
-    <p>🌐 Vibration: <span id="vibration">--</span></p>
-    <p class="alert" id="alert">Checking...</p>
+  <h1>Disaster Monitoring Dashboard</h1>
+
+  <div class="sensor">
+    <div><span class="label">Temperature:</span> <span id="temperature">--</span></div>
+    <div><span class="label">Smoke:</span> <span id="smoke">--</span></div>
+    <div><span class="label">Vibration:</span> <span id="vibration">--</span></div>
+    <div><span class="label">Water Level:</span> <span id="waterLevel">--</span></div>
+    <div><span class="label">Rain:</span> <span id="rain">--</span></div>
+    <div id="alert" class="alert"></div>
   </div>
 
   <script>
-    const channelID = 2918732; // Your ThingSpeak channel ID
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds/last.json`);
-        const data = await response.json();
+    const channelID = "2918732";
+    const apiKey = "4W8JWYPU324TRM3N"; // Your actual Read API Key
 
-        const temp = parseFloat(data.field1);
-        const smoke = parseFloat(data.field2);
-        const vibration = parseFloat(data.field3);
-        const water = parseFloat(data.field4);
-        const rain = parseFloat(data.field5);
-
-        document.getElementById('temp').textContent = temp;
-        document.getElementById('smoke').textContent = smoke;
-        document.getElementById('vibration').textContent = vibration;
-        document.getElementById('water').textContent = water;
-        document.getElementById('rain').textContent = rain;
-
-        // Alert conditions
-        let alert = "✅ All conditions normal.";
-        if (temp > 50 && smoke > 400) alert = "🔥 Forest Fire Alert!";
-        else if (vibration > 500) alert = "⚠️ Earthquake Alert!";
-        else if (water > 700 || rain > 500) alert = "🌊 Flood Alert!";
-        document.getElementById("alert").textContent = alert;
-      } catch (error) {
-        document.getElementById("alert").textContent = "❌ Error fetching data.";
-      }
+    const fieldMapping = {
+      temperature: 'field1',
+      smoke: 'field2',
+      vibration: 'field3',
+      waterLevel: 'field4',
+      rain: 'field5'
     };
 
+    async function fetchData() {
+      try {
+        const response = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${apiKey}`);
+        const data = await response.json();
+
+        const sensorReadings = {};
+        for (const [key, field] of Object.entries(fieldMapping)) {
+          const reading = parseFloat(data[field]);
+          sensorReadings[key] = isNaN(reading) ? 0 : reading;
+          document.getElementById(key).innerText = sensorReadings[key];
+        }
+
+        showAlert(sensorReadings);
+
+      } catch (error) {
+        document.getElementById("alert").innerText = "Error fetching data!";
+        console.error("Fetch error:", error);
+      }
+    }
+
+    function showAlert(readings) {
+      const { temperature, smoke, vibration, waterLevel, rain } = readings;
+      let alertMessage = "";
+
+      if (temperature > 500 && smoke > 300) {
+        alertMessage += "🔥 Forest Fire Alert! ";
+      }
+      if (vibration > 500) {
+        alertMessage += "🌍 Earthquake Alert! ";
+      }
+      if (waterLevel > 600 || rain > 400) {
+        alertMessage += "🌊 Flood Alert! ";
+      }
+
+      document.getElementById("alert").innerText = alertMessage || "✅ All sensors normal.";
+    }
+
     fetchData();
-    setInterval(fetchData, 15000); // refresh every 15 seconds
+    setInterval(fetchData, 20000);
   </script>
 </body>
 </html>
-           
