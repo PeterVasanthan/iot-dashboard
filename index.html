@@ -301,7 +301,7 @@
         alertType = "danger";
         alertIcon = "exclamation-triangle";
       }
-      else if (vibration > 700) {
+      else if (vibration > 1000) {
         alertMessage += "🔄 Elevated Vibration! ";
         alertType = "warning";
         alertIcon = "chart-line";
@@ -312,7 +312,7 @@
         alertType = "danger";
         alertIcon = "water";
       }
-      else if (waterLevel > 100 || rain > 100) {
+      else if (waterLevel > 1000 || rain > 1000) {
         alertMessage += "💧 High Water Levels! ";
         alertType = "warning";
         alertIcon = "cloud-rain";
